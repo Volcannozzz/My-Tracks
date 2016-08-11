@@ -59,7 +59,18 @@ public class BankWaterService implements Runnable
 	{
 		BankWaterService service = new BankWaterService();
 		service.count();
-		new Thread(service).start();
+		Thread thread = new Thread(service);
+		
+		try
+		{
+			Thread.sleep(10000);
+		} catch (InterruptedException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		thread.start();
 	}
 
 }
