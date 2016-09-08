@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>  
+<beans xmlns="http://www.springframework.org/schema/beans"  
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+    xmlns:p="http://www.springframework.org/schema/p"  
+    xmlns:context="http://www.springframework.org/schema/context"  
+    xmlns:tx="http://www.springframework.org/schema/tx"  
+    xmlns:aop="http://www.springframework.org/schema/aop"
+    xsi:schemaLocation="  
+    http://www.springframework.org/schema/beans   
+    http://www.springframework.org/schema/beans/spring-beans-3.0.xsd  
+    http://www.springframework.org/schema/tx   
+    http://www.springframework.org/schema/tx/spring-tx-3.0.xsd   
+    http://www.springframework.org/schema/context   
+    http://www.springframework.org/schema/context/spring-context-3.0.xsd
+    http://www.springframework.org/schema/aop        
+    http://www.springframework.org/schema/aop/spring-aop-3.2.xsd">
+	
+	<!-- 配置action类 -->
+	<bean id="employeeAction" class="com.employee.action.EmployeeAction" scope="prototype">
+		<property name="employeeService" ref="employeeService"></property>
+		<property name="departmentService" ref="departmentService"></property>
+	</bean>
+	
+	<bean id="departmentAction" class="com.employee.action.DepartmentAction" scope="prototype">
+		<property name="departmentService" ref="departmentService"></property>
+	</bean>
+	
+	<!-- 配置业务层的类 -->
+	<bean id="employeeService" class="com.employee.service.impl.EmployeeServiceImpl">
+		<property name="employeeDao" ref="employeeDao"></property>
+	</bean>
+	<bean id="departmentService" class="com.employee.service.impl.DepartmentServiceImpl">
+		<property name="departmentDao" ref="departmentDao"></property>
+	</bean>
+	<!-- 配置DAO的类 -->
+	<bean id="employeeDao" class="com.employee.dao.impl.EmployeeDaoImpl">
+		<property name="sessionFactory" ref="sessionFactory"></property>
+	</bean>
+	<bean id="departmentDao" class="com.employee.dao.impl.DepartmentDaoImpl">
+		<property name="sessionFactory" ref="sessionFactory"></property>
+		
+	</bean>
+		
+	
+	<!-- 引入外部属性文件 -->
+	<context:property-placeholder location="classpath:jdbc.properties"/>
+	
+	<!-- 配置连接池 -->
+	<bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource">
+		<property name="driverClass" value="${jdbc.DriverClass}"></property>
+		<property name="jdbcUrl" value="${jdbc.url}"></property>
+		<property name="user" value="${jdbc.username}"></property>
+		<property name="password" value="${jdbc.password}"></property>
+	</bean>
+	
+	<!-- 配置Hibernate的相关属性 -->
+	<bean id="sessionFactory" class="org.springframework.orm.hibernate3.LocalSessionFactoryBean">
+		<!-- 注入连接池 -->
+		<property name="dataSource" ref="dataSource"></property>
+		<!-- 配置Hibernate的属性 -->
+		<property name="hibernateProperties">
+		<props>
+			<prop key="hibernate.dialect">org.hibernate.dialect.MySQLDialect</prop>
+			<prop key="hibernate.show_sql">true</prop>
+			<prop key="hibernate.format_sql">true</prop>
+			<prop key="hibernate.hbm2ddl.auto">update</prop>
+		</props>
+		</property>
+		<!-- 加载映射文件 -->
+		<property name="mappingResources">
+			<list>
+				<value>com/employee/domain/Department.hbm.xml</value>
+				<value>com/employee/domain/Employee.hbm.xml</value>
+			</list>
+		</property>
+
+	</bean>
+	
+	<bean id="transactionManager" class="org.springframework.orm.hibernate3.HibernateTransactionManager">
+		<property name="sessionFactory" ref="sessionFactory"/>
+	</bean>
+	
+	<tx:annotation-driven transaction-manager="transactionManager"/>
+	
+	
+	
+ 
+ 
+ </beans>
